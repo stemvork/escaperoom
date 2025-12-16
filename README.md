@@ -1,4 +1,5 @@
 Based on an existing escaperoom, there will be an effort to build an open-source tool for teachers to create escaperooms with less technical knowledge.
+Link to the existing escape room: https://claude.ai/public/artifacts/550ab696-43b6-455a-ab4a-b6cb995b90ce
 
 For now, the idea is to build a backend that stores the rooms, questions, hints, settings etc. This abstraction together with an interface facilitates the goal mentioned above.
 
