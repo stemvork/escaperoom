@@ -1,7 +1,76 @@
 import React, { useState, useEffect } from 'react';
 import { Lock, CheckCircle, Timer, AlertCircle } from 'lucide-react';
 
+// INFO: room { title, story, type, correctAnswer, hint }
+const rooms = [
+  {
+    title: "Kamer 1: De Evenwijdige Lijnen",
+    story: "Je bent opgesloten in het laboratorium van Professor Linearis. Op het whiteboard staat: 'Lijn k gaat door punten P(-3, 8) en Q(5, -4). Lijn m is evenwijdig aan k en gaat door R(2, 10).'",
+    question: "Wat is de b-waarde van lijn m? (alleen het getal, positief of negatief)",
+    type: "input",
+    correctAnswer: "13",
+    hint: "Eerst rc van k: (-4-8)/(5-(-3)) = -12/8 = -1,5. Dan m: y = -1,5x + b, vul (2,10) in: 10 = -1,5(2) + b, dus 10 = -3 + b"
+  },
+  {
+    title: "Kamer 2: De Vergelijking px + qy = r",
+    story: "Een mysterieus scherm toont: '3x - 4y = 24'. Je moet de lijn tekenen in je hoofd...",
+    question: "Bij welke x-waarde snijdt deze lijn de x-as? (alleen het getal)",
+    type: "input",
+    correctAnswer: "8",
+    hint: "Bij de x-as geldt y = 0. Vul in: 3x - 4(0) = 24, dus 3x = 24, dus x = 8"
+  },
+  {
+    title: "Kamer 3: Het Stelsel Vergelijkingen",
+    story: "De professor koopt fruit. Eerst: 4 appels en 2 peren voor €8,60. Later: 3 appels en 5 peren voor €11,75.",
+    question: "Hoeveel kost één appel? (gebruik komma, bijvoorbeeld: 1,39)",
+    type: "input",
+    correctAnswer: "1,39",
+    hint: "Stel 4x + 2y = 8,60 en 3x + 5y = 11,75. Vermenigvuldig eerste met 5: 20x + 10y = 43. Vermenigvuldig tweede met 2: 6x + 10y = 23,50. Trek tweede van eerste af: 14x = 19,50, dus x = 1,39"
+  },
+  {
+    title: "Kamer 4: De Ongelijkheid",
+    story: "Taxibedrijf A: K = 1,8d + 15. Taxibedrijf B: K = 2,5d + 8. (K in euro, d in km)",
+    question: "Vanaf hoeveel hele kilometers is A goedkoper dan B? (alleen het getal)",
+    type: "input",
+    correctAnswer: "11",
+    hint: "Los op: 1,8d + 15 < 2,5d + 8. Dus 7 < 0,7d, dus d > 10. Vanaf d = 11 is A goedkoper"
+  },
+  {
+    title: "Kamer 5: Lineair Interpoleren",
+    story: "Op 1 januari 2018 waren er 240 bomen. Op 1 januari 2023 waren er 315 bomen. Lineair verband tussen jaar en aantal.",
+    question: "Hoeveel bomen waren er op 1 januari 2020? (alleen het getal)",
+    type: "input",
+    correctAnswer: "270",
+    hint: "In 5 jaar 75 erbij = 15 per jaar. Van 1 jan 2018 naar 1 jan 2020 is 2 jaar: 240 + 2×15 = 270"
+  },
+  {
+    title: "Kamer 6: Het Lineaire Model",
+    story: "Een zwembad wordt geleegd. Na 2 uur: 850 liter. Na 5 uur: 640 liter. Lineair verband tussen t (uren) en I (liters).",
+    question: "Hoeveel liter zat er bij t = 0? (alleen het getal)",
+    type: "input",
+    correctAnswer: "990",
+    hint: "a = (640-850)/(5-2) = -70. Formule: I = -70t + b. Vul (2, 850) in: 850 = -140 + b, dus b = 990"
+  },
+  {
+    title: "Kamer 7: Lineair Extrapoleren",
+    story: "Bij 20°C is de druk 105 kPa, bij 35°C is de druk 120 kPa. Lineair verband tussen T en P.",
+    question: "Wat is de druk bij 50°C? (alleen het getal)",
+    type: "input",
+    correctAnswer: "135",
+    hint: "a = (120-105)/(35-20) = 1. Formule: P = T + b. Vul (20,105) in: b = 85. Bij T = 50: P = 50 + 85 = 135"
+  },
+  {
+    title: "Kamer 8: De Ultieme Puzzel",
+    story: "FINALE! Lijn p door A(4, 10) en B(12, 2). Lijn q is verticaal door x = -2. Wat is de y-coördinaat van het snijpunt?",
+    question: "Bereken de y-coördinaat (alleen het getal)",
+    type: "input",
+    correctAnswer: "18",
+    hint: "Voor p: rc = (2-10)/(12-4) = -1. Formule: y = -x + b. Vul (4,10) in: 10 = -4 + b, dus b = 14. Bij x = -2: y = 2 + 14 = 18"
+  }
+];
+
 export default function LinearEscapeRoom() {
+  // TODO: extract default values into variables
   const [currentRoom, setCurrentRoom] = useState(0);
   const [timeLeft, setTimeLeft] = useState(2400); // 40 minuten
   const [gameStarted, setGameStarted] = useState(false);
@@ -52,73 +121,6 @@ export default function LinearEscapeRoom() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const rooms = [
-    {
-      title: "Kamer 1: De Evenwijdige Lijnen",
-      story: "Je bent opgesloten in het laboratorium van Professor Linearis. Op het whiteboard staat: 'Lijn k gaat door punten P(-3, 8) en Q(5, -4). Lijn m is evenwijdig aan k en gaat door R(2, 10).'",
-      question: "Wat is de b-waarde van lijn m? (alleen het getal, positief of negatief)",
-      type: "input",
-      correctAnswer: "13",
-      hint: "Eerst rc van k: (-4-8)/(5-(-3)) = -12/8 = -1,5. Dan m: y = -1,5x + b, vul (2,10) in: 10 = -1,5(2) + b, dus 10 = -3 + b"
-    },
-    {
-      title: "Kamer 2: De Vergelijking px + qy = r",
-      story: "Een mysterieus scherm toont: '3x - 4y = 24'. Je moet de lijn tekenen in je hoofd...",
-      question: "Bij welke x-waarde snijdt deze lijn de x-as? (alleen het getal)",
-      type: "input",
-      correctAnswer: "8",
-      hint: "Bij de x-as geldt y = 0. Vul in: 3x - 4(0) = 24, dus 3x = 24, dus x = 8"
-    },
-    {
-      title: "Kamer 3: Het Stelsel Vergelijkingen",
-      story: "De professor koopt fruit. Eerst: 4 appels en 2 peren voor €8,60. Later: 3 appels en 5 peren voor €11,75.",
-      question: "Hoeveel kost één appel? (gebruik komma, bijvoorbeeld: 1,39)",
-      type: "input",
-      correctAnswer: "1,39",
-      hint: "Stel 4x + 2y = 8,60 en 3x + 5y = 11,75. Vermenigvuldig eerste met 5: 20x + 10y = 43. Vermenigvuldig tweede met 2: 6x + 10y = 23,50. Trek tweede van eerste af: 14x = 19,50, dus x = 1,39"
-    },
-    {
-      title: "Kamer 4: De Ongelijkheid",
-      story: "Taxibedrijf A: K = 1,8d + 15. Taxibedrijf B: K = 2,5d + 8. (K in euro, d in km)",
-      question: "Vanaf hoeveel hele kilometers is A goedkoper dan B? (alleen het getal)",
-      type: "input",
-      correctAnswer: "11",
-      hint: "Los op: 1,8d + 15 < 2,5d + 8. Dus 7 < 0,7d, dus d > 10. Vanaf d = 11 is A goedkoper"
-    },
-    {
-      title: "Kamer 5: Lineair Interpoleren",
-      story: "Op 1 januari 2018 waren er 240 bomen. Op 1 januari 2023 waren er 315 bomen. Lineair verband tussen jaar en aantal.",
-      question: "Hoeveel bomen waren er op 1 januari 2020? (alleen het getal)",
-      type: "input",
-      correctAnswer: "270",
-      hint: "In 5 jaar 75 erbij = 15 per jaar. Van 1 jan 2018 naar 1 jan 2020 is 2 jaar: 240 + 2×15 = 270"
-    },
-    {
-      title: "Kamer 6: Het Lineaire Model",
-      story: "Een zwembad wordt geleegd. Na 2 uur: 850 liter. Na 5 uur: 640 liter. Lineair verband tussen t (uren) en I (liters).",
-      question: "Hoeveel liter zat er bij t = 0? (alleen het getal)",
-      type: "input",
-      correctAnswer: "990",
-      hint: "a = (640-850)/(5-2) = -70. Formule: I = -70t + b. Vul (2, 850) in: 850 = -140 + b, dus b = 990"
-    },
-    {
-      title: "Kamer 7: Lineair Extrapoleren",
-      story: "Bij 20°C is de druk 105 kPa, bij 35°C is de druk 120 kPa. Lineair verband tussen T en P.",
-      question: "Wat is de druk bij 50°C? (alleen het getal)",
-      type: "input",
-      correctAnswer: "135",
-      hint: "a = (120-105)/(35-20) = 1. Formule: P = T + b. Vul (20,105) in: b = 85. Bij T = 50: P = 50 + 85 = 135"
-    },
-    {
-      title: "Kamer 8: De Ultieme Puzzel",
-      story: "FINALE! Lijn p door A(4, 10) en B(12, 2). Lijn q is verticaal door x = -2. Wat is de y-coördinaat van het snijpunt?",
-      question: "Bereken de y-coördinaat (alleen het getal)",
-      type: "input",
-      correctAnswer: "18",
-      hint: "Voor p: rc = (2-10)/(12-4) = -1. Formule: y = -x + b. Vul (4,10) in: 10 = -4 + b, dus b = 14. Bij x = -2: y = 2 + 14 = 18"
-    }
-  ];
-
   const checkAnswer = () => {
     const userAnswer = answers[currentRoom]?.toLowerCase().replace(/\s/g, '');
     const correctAnswer = rooms[currentRoom].correctAnswer.toLowerCase().replace(/\s/g, '');
@@ -135,10 +137,12 @@ export default function LinearEscapeRoom() {
         }
       }, 1500);
     } else {
+      // TODO: long term possibility: provide feedback based on answer
       setFeedback('❌ Dat is niet correct. Probeer het opnieuw!');
     }
   };
 
+  // TODO: extract into gameStarted function
   if (!gameStarted) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center p-4">
@@ -163,6 +167,7 @@ export default function LinearEscapeRoom() {
     );
   }
 
+  // TODO: extract into gameWon function
   if (gameWon) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-900 via-emerald-900 to-teal-900 flex items-center justify-center p-4">
@@ -190,6 +195,7 @@ export default function LinearEscapeRoom() {
     );
   }
 
+  // TODO: extract into gameEnded function
   if (timeLeft === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-900 via-orange-900 to-red-900 flex items-center justify-center p-4">
@@ -217,6 +223,7 @@ export default function LinearEscapeRoom() {
 
   const room = rooms[currentRoom];
 
+  // TODO: extract into displayCurrentRoom function
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
       <div className="max-w-3xl mx-auto">
@@ -309,3 +316,5 @@ export default function LinearEscapeRoom() {
     </div>
   );
 }
+
+// TODO: consider theme customisation: colours, font, etc
